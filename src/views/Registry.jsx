@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Edit2, Trash2, Search, Plus } from 'lucide-react';
+import { Edit2, Trash2, Search, Plus, Eye } from 'lucide-react';
 import { fetchRegistry, deleteRegistryItem } from '../store/registrySlice';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -84,6 +84,13 @@ export default function Registry() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex justify-center gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                <Link
+                                                    to={`/view/${item.id}`}
+                                                    className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
+                                                    title="View"
+                                                >
+                                                    <Eye size={16} />
+                                                </Link>
                                                 <Link
                                                     to={`/edit/${item.id}`}
                                                     className="p-2 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors border border-transparent hover:border-teal-100"
