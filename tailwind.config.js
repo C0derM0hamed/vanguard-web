@@ -10,8 +10,6 @@ export default {
                 sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
             },
             colors: {
-                // Using standard Tailwind colors, but we can adhere to the rules strictly.
-                // Accent: Teal
             }
         },
     },

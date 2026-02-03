@@ -1,30 +1,22 @@
 import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Edit2, Trash2, Search, Plus } from 'lucide-react';
-import axios from 'axios';
+import { fetchRegistry, deleteRegistryItem } from '../store/registrySlice';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function Registry() {
-    const [items, setItems] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const dispatch = useDispatch();
+    const { items, loading } = useSelector((state) => state.registry);
     const [search, setSearch] = useState('');
 
     useEffect(() => {
-        loadData();
-    }, []);
-
-    const loadData = () => {
-        setLoading(true);
-        // Fetch all items from the server
-        axios.get('http://localhost:3000/registry')
-            .then(response => setItems(response.data))
-            .finally(() => setLoading(false));
-    };
+        dispatch(fetchRegistry());
+    }, [dispatch]);
 
     const handleDelete = async (id) => {
         if (confirm('Are you sure you want to remove this item?')) {
-            // Delete the item by ID
-            await axios.delete(`http://localhost:3000/registry/${id}`);
-            loadData();
+            dispatch(deleteRegistryItem(id));
         }
     };
 
@@ -64,10 +56,7 @@ export default function Registry() {
 
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 {loading ? (
-                    <div className="p-12 flex flex-col items-center justify-center text-slate-400 gap-3">
-                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-100 border-t-teal-500"></div>
-                        <p className="text-sm font-medium">Loading records...</p>
-                    </div>
+                    <LoadingSpinner message="Loading records..." />
                 ) : filteredItems.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">

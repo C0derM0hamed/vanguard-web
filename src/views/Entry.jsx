@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Save, Image as ImageIcon } from 'lucide-react';
-import axios from 'axios';
+import { ArrowLeft, Save } from 'lucide-react';
+import { fetchRegistryItem, createRegistryItem, updateRegistryItem, clearCurrentItem } from '../store/registrySlice';
+import InputField from '../components/InputField';
 
 export default function Entry() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const isEditing = Boolean(id);
+
+    const { currentItem, loading } = useSelector((state) => state.registry);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -15,46 +20,37 @@ export default function Entry() {
         description: '',
         image: ''
     });
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (isEditing) {
-            // Load existing data for editing
-            axios.get(`http://localhost:3000/registry/${id}`)
-                .then(response => setFormData(response.data));
+            dispatch(fetchRegistryItem(id));
         }
-    }, [id, isEditing]);
+        return () => {
+            dispatch(clearCurrentItem());
+        };
+    }, [id, isEditing, dispatch]);
+
+    useEffect(() => {
+        if (currentItem && isEditing) {
+            setFormData(currentItem);
+        }
+    }, [currentItem, isEditing]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         try {
             if (isEditing) {
-                // Update existing item
-                await axios.put(`http://localhost:3000/registry/${id}`, formData);
+                await dispatch(updateRegistryItem({ id, itemData: formData })).unwrap();
             } else {
-                // Create new item
-                await axios.post('http://localhost:3000/registry', formData);
+                await dispatch(createRegistryItem(formData)).unwrap();
             }
             navigate('/registry');
         } catch (error) {
             console.error(error);
             alert('Error saving entry');
-        } finally {
-            setLoading(false);
         }
     };
 
-    const InputField = ({ label, type = "text", ...props }) => (
-        <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-slate-700">{label}</label>
-            <input
-                type={type}
-                className="block w-full rounded-lg border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 transition-all focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 outline-none"
-                {...props}
-            />
-        </div>
-    );
 
     return (
         <div className="max-w-2xl mx-auto space-y-8">

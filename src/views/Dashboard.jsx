@@ -1,38 +1,21 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Package, TrendingUp, AlertCircle, ArrowRight } from 'lucide-react';
+import { fetchRegistry } from '../store/registrySlice';
+import StatCard from '../components/StatCard';
 
 export default function Dashboard() {
-    const [count, setCount] = useState(0);
-    const [totalValue, setTotalValue] = useState(0);
-    const [loading, setLoading] = useState(true);
+    const dispatch = useDispatch();
+    const { items, loading } = useSelector((state) => state.registry);
+
+    const count = items.length;
+    const totalValue = items.reduce((acc, item) => acc + Number(item.price), 0);
 
     useEffect(() => {
-        // Simple data fetching: Get the entire registry
-        axios.get('http://localhost:3000/registry').then(response => {
-            const data = response.data;
-            setCount(data.length);
-            const sum = data.reduce((acc, item) => acc + Number(item.price), 0);
-            setTotalValue(sum);
-            setLoading(false);
-        });
-    }, []);
+        dispatch(fetchRegistry());
+    }, [dispatch]);
 
-    const StatCard = ({ label, value, icon: Icon, color, subtext }) => (
-        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-start justify-between">
-                <div>
-                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">{label}</p>
-                    <p className="mt-2 text-3xl font-bold text-slate-900 tracking-tight">{value}</p>
-                </div>
-                <div className={`p-3 rounded-lg ${color}`}>
-                    <Icon size={24} className="text-white" />
-                </div>
-            </div>
-            {subtext && <p className="mt-4 text-xs text-slate-400">{subtext}</p>}
-        </div>
-    );
 
     return (
         <div className="space-y-8 animate-fade-in">
@@ -62,7 +45,6 @@ export default function Dashboard() {
                         color="bg-teal-500"
                         subtext="Aggregate price of all items"
                     />
-                    {/* Placeholder for future stat */}
                     <div className="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center text-center">
                         <div className="p-3 bg-white rounded-full mb-3 shadow-sm">
                             <AlertCircle size={20} className="text-slate-300" />
@@ -72,7 +54,6 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* Quick Action Section */}
             <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-2xl p-8 text-white shadow-lg overflow-hidden relative">
                 <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                     <div>
